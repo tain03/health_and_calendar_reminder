@@ -1,0 +1,11 @@
+# Agent & Tools directory
+.agent/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local configuration
+config.json

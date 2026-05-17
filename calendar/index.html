@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LG Work Calendar 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark-theme">
+    <div class="mesh-gradient"></div>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <i data-lucide="calendar-days"></i>
+                <span>LG Progress</span>
+            </div>
+            <nav>
+                <ul>
+                    <li onclick="window.location.href='/'" style="border: 1px solid rgba(244, 63, 94, 0.25); background: rgba(244, 63, 94, 0.05); color: #fb7185; margin-bottom: 1.5rem;">
+                        <i data-lucide="activity"></i>
+                        <span>HealthSync Console</span>
+                    </li>
+                    <li class="active" id="nav-dashboard">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>Dashboard</span>
+                    </li>
+                    <li id="nav-calendar">
+                        <i data-lucide="calendar"></i>
+                        <span>Full Calendar</span>
+                    </li>
+                    <li id="nav-settings">
+                        <i data-lucide="settings"></i>
+                        <span>Settings</span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="theme-switch-wrapper">
+                <i data-lucide="sun"></i>
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round"></div>
+                </label>
+                <i data-lucide="moon"></i>
+            </div>
+            <div class="sidebar-footer">
+                <div class="current-time" id="current-time">00:00:00</div>
+                <div class="current-date" id="current-date">Friday, May 15, 2026</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <h1>Work Dashboard 2026</h1>
+                <div class="user-profile">
+                    <div class="status-indicator">Online</div>
+                    <div class="avatar" style="cursor: pointer; background: #fb7185;" onclick="window.location.href='/'" title="Về HealthSync Console">💊</div>
+                </div>
+            </header>
+
+            <section class="dashboard-grid">
+                <!-- Progress Card -->
+                <div class="card progress-card glass">
+                    <div class="progress-section">
+                        <h3>2026 Year Progress</h3>
+                        <div class="progress-wrapper">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="year-progress-bar" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-percentage" id="year-progress-text">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section" style="margin-top: 1.5rem;">
+                        <h3>Current Work Cycle Progress</h3>
+                        <div class="progress-wrapper">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar cycle-bar" id="cycle-progress-bar" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-percentage" id="cycle-progress-text">0%</span>
+                        </div>
+                        <p class="card-subtitle" id="cycle-range-text">Cycle: Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Seniority Card -->
+                <div class="card seniority-card glass">
+                    <div class="card-header">
+                        <h3>My Journey</h3>
+                        <i data-lucide="rocket" class="icon-accent"></i>
+                    </div>
+                    <div class="seniority-content">
+                        <span class="stat-value" id="days-at-lg">0</span>
+                        <span class="stat-label">Days at LG</span>
+                    </div>
+                    <p class="card-subtitle" id="joining-date-text">Started on: Not set</p>
+                </div>
+
+                <!-- Salary Card -->
+                <div class="card salary-card glass">
+                    <div class="card-header">
+                        <h3>Salary Tracker</h3>
+                        <i data-lucide="banknote" class="icon-accent"></i>
+                    </div>
+                    <div class="salary-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Next Payday</span>
+                            <span class="stat-value" id="next-payday">May 25, 2026</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Days to Pay</span>
+                            <span class="stat-value highlight" id="days-to-pay">10</span>
+                        </div>
+                    </div>
+                    <div class="salary-cycle">
+                        <span id="salary-cycle-text">Cycle: Apr 19 - May 18</span>
+                    </div>
+                </div>
+
+                <!-- Calendar Widget -->
+                <div class="card calendar-card glass">
+                    <div class="calendar-header">
+                        <button id="prev-month"><i data-lucide="chevron-left"></i></button>
+                        <h3 id="calendar-month-year">May 2026</h3>
+                        <button id="next-month"><i data-lucide="chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid-header">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span class="weekend">Sat</span><span class="weekend">Sun</span>
+                    </div>
+                    <div class="calendar-grid" id="calendar-days-grid">
+                        <!-- Days will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Holidays List -->
+                <div class="card holidays-card glass">
+                    <h3>Next Holiday</h3>
+                    <ul class="holiday-list" id="upcoming-holidays">
+                        <!-- Holidays will be injected here -->
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Note Modal -->
+    <div id="note-modal" class="modal">
+        <div class="modal-content glass">
+            <header class="modal-header">
+                <h3 id="modal-date-title">Date Note</h3>
+                <button class="close-modal">&times;</button>
+            </header>
+            <textarea id="note-text" placeholder="Add your note here..."></textarea>
+            <footer class="modal-footer">
+                <button id="save-note" class="btn-primary">Save Note</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content glass">
+            <header class="modal-header">
+                <h3>Settings</h3>
+                <button class="close-modal">&times;</button>
+            </header>
+            <div class="settings-group">
+                <label for="joining-date-input">Your Joining Date:</label>
+                <input type="date" id="joining-date-input" />
+            </div>
+            <footer class="modal-footer">
+                <button id="save-settings" class="btn-primary">Save Settings</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="lunar.js"></script>
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthSync Console — Hệ thống Nhắc nhở Sức khỏe Cao cấp</title>
+  
+  <!-- Google Fonts: Be Vietnam Pro (Optimized for perfect Vietnamese typography) & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --card-bg: rgba(15, 23, 42, 0.65);
+      --card-border: rgba(99, 102, 241, 0.12);
+      --card-border-active: rgba(99, 102, 241, 0.35);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --success: #10b981;
+      --error: #f43f5e;
+      --warning: #f59e0b;
+      --info: #0ea5e9;
+      --glow-indigo: 0 0 25px rgba(99, 102, 241, 0.2);
+      --glow-emerald: 0 0 25px rgba(16, 185, 129, 0.2);
+      
+      --font-title: 'Be Vietnam Pro', sans-serif;
+      --font-body: 'Be Vietnam Pro', sans-serif;
+      --font-code: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px 80px 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── BACKGROUND ORBS ────────────────────────────────────────────────────── */
+    .bg-orb {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      filter: blur(130px);
+      z-index: -1;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      top: -100px;
+      left: -100px;
+      background: var(--accent);
+    }
+
+    .orb-2 {
+      bottom: 10%;
+      right: -100px;
+      background: var(--info);
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────────────────── */
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-svg {
+      width: 32px;
+      height: 32px;
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2;
+      filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+      animation: pulse-heart 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-heart {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    .brand-title {
+      font-family: var(--font-title);
+      font-weight: 800;
+      font-size: 24px;
+      background: linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 30px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--success);
+      box-shadow: var(--glow-emerald);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--success);
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .status-dot::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--success);
+      border-radius: 50%;
+      animation: ping 1.5s infinite ease-out;
+    }
+
+    @keyframes ping {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    /* ── MAIN LAYOUT ────────────────────────────────────────────────────────── */
+    main {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ── GLASS CARD ─────────────────────────────────────────────────────────── */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: var(--card-border-active);
+      box-shadow: var(--glow-indigo), 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Card Header */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .card-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      transition: transform 0.3s ease;
+    }
+
+    .glass-card:hover .card-icon-wrapper {
+      transform: scale(1.08) rotate(2deg);
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .card-icon-wrapper svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 2;
+    }
+
+    .card-title-text h3 {
+      font-family: var(--font-title);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .card-title-text p {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Custom colors for cards */
+    .card-medicine .card-icon-wrapper { background: rgba(244, 63, 94, 0.08); border-color: rgba(244, 63, 94, 0.2); color: var(--error); }
+    .card-medicine:hover .card-icon-wrapper { background: rgba(244, 63, 94, 0.15); border-color: rgba(244, 63, 94, 0.4); }
+    
+    .card-water .card-icon-wrapper { background: rgba(14, 165, 233, 0.08); border-color: rgba(14, 165, 233, 0.2); color: var(--info); }
+    .card-water:hover .card-icon-wrapper { background: rgba(14, 165, 233, 0.15); border-color: rgba(14, 165, 233, 0.4); }
+
+    .card-walk .card-icon-wrapper { background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .card-walk:hover .card-icon-wrapper { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); }
+
+    /* ── BENTO HEALTH STATS (FUTURISTIC TRACKER) ────────────────────────────── */
+    .bento-tracker {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .bento-tracker {
+        grid-template-columns: 1.1fr 1fr 1.1fr;
+      }
+    }
+
+    .tracker-card {
+      background: rgba(30, 41, 59, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 175px;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      cursor: pointer;
+    }
+
+    .tracker-card:hover {
+      background: rgba(30, 41, 59, 0.65);
+      border-color: rgba(99, 102, 241, 0.25);
+      transform: translateY(-3px);
+    }
+
+    .tracker-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    /* ── WATER WAVE ANIMATION (LIQUID CONTAINER) ────────────────────────────── */
+    .water-bottle {
+      width: 54px;
+      height: 84px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px 12px 16px 16px;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.55);
+      box-shadow: inset 0 0 10px rgba(14, 165, 233, 0.2);
+    }
+
+    .water-wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 200%;
+      height: 0%; /* Dynamic height in JS */
+      background: linear-gradient(180deg, rgba(14, 165, 233, 0.65) 0%, rgba(99, 102, 241, 0.85) 100%);
+      transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .water-wave::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 10px;
+      background: rgba(14, 165, 233, 0.4);
+      top: -6px;
+      left: 0;
+      border-radius: 40%;
+      animation: wave-anim 2.5s infinite linear;
+    }
+
+    @keyframes wave-anim {
+      0% { transform: translateX(0) translateZ(0) scaleY(1); }
+      50% { transform: translateX(-25%) translateZ(0) scaleY(0.8); }
+      100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
+    }
+
+    /* ── MEDICINE INTERACTIVE CAPSULE ANIMATION (NEW) ───────────────────────── */
+    .pill-container {
+      width: 60px;
+      height: 90px;
+      position: absolute;
+      bottom: 16px;
+      right: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .capsule {
+      width: 20px;
+      height: 48px;
+      border-radius: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      transform: rotate(-45deg);
+      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: rgba(15, 23, 42, 0.5);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.1);
+    }
+
+    .capsule-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: rgba(244, 63, 94, 0.75);
+      border-radius: 18px 18px 0 0;
+      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .capsule-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: rgba(255, 255, 255, 0.65);
+      border-radius: 0 0 18px 18px;
+      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Capsule checked animation state */
+    .capsule.taken {
+      transform: rotate(45deg) scale(0.9);
+      border-color: var(--success);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .capsule.taken .capsule-top {
+      transform: translateY(-6px);
+      background: rgba(16, 185, 129, 0.85);
+    }
+
+    .capsule.taken .capsule-bottom {
+      transform: translateY(6px);
+      background: rgba(16, 185, 129, 0.35);
+      border-color: var(--success);
+    }
+
+    .sparkles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: none;
+    }
+
+    .capsule.taken + .sparkles {
+      display: block;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      opacity: 0;
+    }
+
+    .sparkle:nth-child(1) { top: 15px; left: 15px; animation: drop-sparkle 1.2s infinite ease-out 0.1s; }
+    .sparkle:nth-child(2) { top: 20px; right: 15px; animation: drop-sparkle 1.2s infinite ease-out 0.4s; }
+    .sparkle:nth-child(3) { bottom: 20px; left: 20px; animation: drop-sparkle 1.2s infinite ease-out 0.7s; }
+    .sparkle:nth-child(4) { bottom: 15px; right: 20px; animation: drop-sparkle 1.2s infinite ease-out 0.2s; }
+
+    @keyframes drop-sparkle {
+      0% { transform: translateY(0) scale(1); opacity: 0; }
+      30% { opacity: 1; }
+      100% { transform: translateY(18px) scale(0); opacity: 0; }
+    }
+
+    /* ── WALK INTERACTIVE PATH ANIMATION (NEW) ──────────────────────────────── */
+    .walk-path-container {
+      width: 90px;
+      height: 60px;
+      position: absolute;
+      bottom: 20px;
+      right: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .walk-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .walk-track-fill {
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .walker {
+      offset-path: path("M 10 30 Q 30 10 50 30 T 90 30");
+      offset-distance: 0%;
+      transition: offset-distance 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 0 6px var(--success));
+    }
+
+    .tracker-card.completed-walk .walker {
+      offset-distance: 100%;
+    }
+
+    /* ── CARD COMMON METRICS ────────────────────────────────────────────────── */
+    .tracker-count {
+      font-family: var(--font-title);
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .tracker-btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .tracker-mini-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tracker-mini-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Checkbox list styled beautifully */
+    .bento-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .bento-checkbox input {
+      display: none;
+    }
+
+    .checkbox-box {
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .bento-checkbox input:checked + .checkbox-box {
+      background: var(--success);
+      border-color: var(--success);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .checkbox-box svg {
+      width: 14px;
+      height: 14px;
+      stroke: white;
+      stroke-width: 3;
+      fill: none;
+      display: none;
+    }
+
+    .bento-checkbox input:checked + .checkbox-box svg {
+      display: block;
+    }
+
+    /* Target completion gauge */
+    .overall-progress {
+      grid-column: 1 / -1;
+      background: rgba(30, 41, 59, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 16px 20px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%; /* Dynamic fill in JS */
+      background: linear-gradient(90deg, var(--accent) 0%, var(--success) 100%);
+      border-radius: 10px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+    }
+
+    /* ── TOGGLE SWITCH ──────────────────────────────────────────────────────── */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(148, 163, 184, 0.2);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    input:checked + .slider {
+      background-color: var(--success);
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: var(--glow-emerald);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .card-body-content {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .glass-card.disabled-state .card-body-content {
+      opacity: 0.45;
+      pointer-events: none;
+      transform: translateY(2px);
+    }
+
+    /* Time inputs */
+    .card-inputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+    }
+
+    input[type="time"], input[type="number"], select {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      padding: 10px 14px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.2s ease;
+      width: 140px;
+    }
+
+    input[type="time"]:focus, input[type="number"]:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: var(--glow-indigo), 0 0 0 2px rgba(99, 102, 241, 0.1);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    input[type="number"] { width: 90px; }
+
+    /* Countdowns (Real-time live status) */
+    .countdown-timer {
+      font-family: var(--font-code);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--warning);
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 8px;
+      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .countdown-timer svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding-top: 15px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary svg { width: 16px; height: 16px; }
+
+    /* ── SYSTEM CARD ────────────────────────────────────────────────────────── */
+    .system-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 600px) {
+      .system-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .system-option {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .system-option-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .system-option-text label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .system-option-text p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ── SYSTEM COLLAPSIBLE TERMINAL LOG PANEL ─────────────────────── */
+    .console-panel {
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(8, 12, 28, 0.85);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 10px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .console-header {
+      background: rgba(15, 23, 42, 0.8);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .console-header h3 {
+      font-family: var(--font-title);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .console-header h3 svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--accent);
+    }
+
+    .console-status {
+      display: flex;
+      gap: 5px;
+    }
+
+    .console-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+    .console-dot:nth-child(2) { background: #f59e0b; }
+    .console-dot:nth-child(3) { background: #10b981; }
+
+    .console-content {
+      padding: 16px 20px;
+      font-family: var(--font-code);
+      font-size: 12px;
+      line-height: 1.6;
+      color: #38bdf8;
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-time { color: var(--text-muted); }
+    .log-tag-system { color: var(--accent); font-weight: bold; }
+    .log-tag-action { color: var(--success); font-weight: bold; }
+    .log-tag-alert { color: var(--warning); font-weight: bold; }
+    .log-tag-config { color: var(--info); font-weight: bold; }
+    .log-text { color: var(--text-secondary); }
+
+    /* ── FLOATING ACTION BAR ────────────────────────────────────────────────── */
+    .action-bar {
+      position: sticky;
+      bottom: 24px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border-active);
+      border-radius: 20px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--glow-indigo), 0 10px 40px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      margin-top: 10px;
+    }
+
+    .action-info-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+      border: none;
+      color: white;
+      border-radius: 14px;
+      padding: 12px 28px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6), var(--glow-indigo);
+    }
+
+    .btn-primary svg { width: 18px; height: 18px; }
+
+    .btn-primary.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s infinite linear;
+    }
+
+    .btn-primary.loading .spinner { display: block; }
+    .btn-primary.loading .btn-icon { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOASTS ─────────────────────────────────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 110px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: toast-in 0.3s forwards cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: auto;
+    }
+
+    .toast.success { border-color: rgba(16, 185, 129, 0.4); box-shadow: var(--glow-emerald), 0 10px 25px rgba(0,0,0,0.3); }
+    .toast.error { border-color: rgba(244, 63, 94, 0.4); }
+
+    .toast-icon { width: 18px; height: 18px; }
+    .toast.success .toast-icon { color: var(--success); }
+    .toast.error .toast-icon { color: var(--error); }
+
+    @keyframes toast-in { to { transform: translateY(0); opacity: 1; } }
+
+    .toast.toast-out { animation: toast-out 0.3s forwards cubic-bezier(0.4, 0, 0.2, 1); }
+    @keyframes toast-out { to { transform: translateY(-20px); opacity: 0; } }
+  </style>
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-container">
+      <svg class="logo-svg" viewBox="0 0 24 24">
+        <path d="M4.5 12.5l3.5 3.5 8.5-8.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h1 class="brand-title">HealthSync Console</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="/calendar/" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 12px; font-size: 13px; color: white; text-decoration: none; font-weight: 600; background: linear-gradient(135deg, #38bdf8, #0ea5e9); box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        Lịch Làm Việc LG 📅
+      </a>
+      <div class="server-status">
+        <span class="status-dot"></span>
+        <span>Đang chạy ngầm</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    
+    <!-- FUTURISTIC BENTO STATS & DAILY PROGRESS -->
+    <section class="glass-card bento-tracker-section">
+      <div class="card-header" style="margin-bottom: 16px;">
+        <div class="card-title-area">
+          <div class="card-icon-wrapper" style="background: rgba(99,102,241,0.08);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div class="card-title-text">
+            <h3>Hoàn thành Mục tiêu Hôm nay</h3>
+            <p>Tương tác trực quan để đánh dấu và theo dõi tiến trình ngày</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bento-tracker">
+        <!-- Medicine Card (Pill Capsule split animation) -->
+        <div class="tracker-card" onclick="document.getElementById('bento-med-checkbox').click(); event.stopPropagation();">
+          <div>
+            <span class="tracker-title">Dùng thuốc</span>
+            <label class="bento-checkbox" onclick="event.stopPropagation();">
+              <input type="checkbox" id="bento-med-checkbox" onchange="updateBentoStats('medicine_taken', this.checked)">
+              <span class="checkbox-box">
+                <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="tracker-count" id="bento-med-text" style="font-size: 19px;">Chưa uống</span>
+            </label>
+          </div>
+          <!-- Capsule animation container -->
+          <div class="pill-container">
+            <div class="capsule" id="bento-capsule">
+              <div class="capsule-top"></div>
+              <div class="capsule-bottom"></div>
+            </div>
+            <div class="sparkles">
+              <div class="sparkle"></div>
+              <div class="sparkle"></div>
+              <div class="sparkle"></div>
+              <div class="sparkle"></div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">Click để uống thuốc</span>
+        </div>
+
+        <!-- Water Card (Masterpiece wave) -->
+        <div class="tracker-card" style="cursor: default;">
+          <div>
+            <span class="tracker-title">Lượng nước uống</span>
+            <div class="tracker-count"><span id="water-count-text">0</span>/8 <span style="font-size:14px; font-weight:normal;">ly</span></div>
+            <div class="tracker-btn-group">
+              <button class="tracker-mini-btn" onclick="adjustWater(-1)" title="Giảm 1 ly">-</button>
+              <button class="tracker-mini-btn" onclick="adjustWater(1)" title="Thêm 1 ly" style="background: var(--info); border-color: var(--info);">+</button>
+            </div>
+          </div>
+          <!-- Wave bottle container -->
+          <div class="water-bottle">
+            <div class="water-wave" id="water-wave-fill"></div>
+          </div>
+        </div>
+
+        <!-- Walk Card (Walk step path animation) -->
+        <div class="tracker-card" id="bento-walk-card" style="cursor: default;">
+          <div>
+            <span class="tracker-title">Đi bộ vận động</span>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+              <label class="bento-checkbox">
+                <input type="checkbox" id="bento-walk-morning-checkbox" onchange="updateBentoWalkStats('walk_morning_completed', this.checked)">
+                <span class="checkbox-box">
+                  <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="tracker-count" id="bento-walk-morning-text" style="font-size: 15px;">Buổi sáng</span>
+              </label>
+
+              <label class="bento-checkbox">
+                <input type="checkbox" id="bento-walk-afternoon-checkbox" onchange="updateBentoWalkStats('walk_afternoon_completed', this.checked)">
+                <span class="checkbox-box">
+                  <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="tracker-count" id="bento-walk-afternoon-text" style="font-size: 15px;">Buổi chiều</span>
+              </label>
+            </div>
+          </div>
+          <!-- Walk path animation container -->
+          <div class="walk-path-container" style="margin-top: 10px;">
+            <svg class="walk-svg" viewBox="0 0 100 60">
+              <path d="M 10 30 Q 30 10 50 30 T 90 30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3" stroke-linecap="round" />
+              <path class="walk-track-fill" id="walk-track-fill" d="M 10 30 Q 30 10 50 30 T 90 30" fill="none" stroke="rgba(16, 185, 129, 0.4)" stroke-width="3" stroke-linecap="round" stroke-dasharray="120" stroke-dashoffset="120" />
+              <circle class="walker" id="walker-dot" r="4.5" fill="var(--success)" />
+            </svg>
+          </div>
+          <span id="bento-walk-summary-text" style="font-size: 11px; color: var(--text-secondary); margin-top: 6px;">Chưa hoàn thành</span>
+        </div>
+
+        <!-- Progress Gauge -->
+        <div class="overall-progress">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700;">
+            <span style="color:var(--text-secondary);">TIẾN TRÌNH HOÀN THÀNH HOẠT ĐỘNG NGÀY</span>
+            <span id="progress-percent" style="color:var(--success);">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORM SETTINGS -->
+    <form id="config-form" onsubmit="saveConfig(event)">
+      <!-- MEDICINE CARD -->
+      <div class="glass-card card-medicine" id="card-medicine" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <div class="card-title-area">
+            <div class="card-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18M3 12h18M12 9a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0v-4a3 3 0 0 0 6-6z" />
+              </svg>
+            </div>
+            <div class="card-title-text">
+              <h3>💊 Uống thuốc hàng ngày</h3>
+              <p>Nhắc nhở dùng thuốc/thực phẩm chức năng đúng giờ</p>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="medicine-enabled" onchange="toggleCardState('medicine')">
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="card-body-content">
+          <div class="card-inputs">
+            <div class="input-group">
+              <label for="medicine-time">Thời điểm nhắc</label>
+              <input type="time" id="medicine-time" required>
+            </div>
+            <!-- Countdowns -->
+            <div class="countdown-timer" id="countdown-medicine">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span class="countdown-text">Đang cập nhật...</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn-secondary" onclick="triggerTest('medicine')">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 0 1-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+              </svg>
+              Gửi thử thông báo Windows
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WATER CARD -->
+      <div class="glass-card card-water" id="card-water" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <div class="card-title-area">
+            <div class="card-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.484 15.414c.758-1.516.48-3.327-.833-4.64L12 4.092l-6.65 6.682c-1.314 1.313-1.59 3.124-.833 4.64.767 1.533 2.33 2.531 4.053 2.586H15.43c1.724-.055 3.287-1.053 4.054-2.586z" />
+              </svg>
+            </div>
+            <div class="card-title-text">
+              <h3>💧 Bổ sung nước</h3>
+              <p>Nhắc uống nước định kỳ để duy trì năng lượng</p>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="water-enabled" onchange="toggleCardState('water')">
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="card-body-content">
+          <div class="card-inputs">
+            <div class="input-group">
+              <label for="water-time">Bắt đầu từ</label>
+              <input type="time" id="water-time" required>
+            </div>
+            <div class="input-group">
+              <label for="water-interval">Chu kỳ nhắc</label>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="number" id="water-interval" min="1" max="8" required>
+                <span style="font-size:14px; color:var(--text-secondary);">giờ một lần</span>
+              </div>
+            </div>
+            <!-- Countdowns -->
+            <div class="countdown-timer" id="countdown-water">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span class="countdown-text">Đang cập nhật...</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn-secondary" onclick="triggerTest('water')">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 0 1-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+              </svg>
+              Gửi thử thông báo Windows
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WALK CARD -->
+      <div class="glass-card card-walk" id="card-walk" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <div class="card-title-area">
+            <div class="card-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              </svg>
+            </div>
+            <div class="card-title-text">
+              <h3>🚶 Đi bộ thư giãn</h3>
+              <p>Khuyến khích vận động nhẹ nhàng 2 lần mỗi ngày</p>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="walk-enabled" onchange="toggleCardState('walk')">
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="card-body-content">
+          <div class="card-inputs" style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+              <div class="input-group">
+                <label for="walk-time-morning">Thời điểm nhắc Buổi sáng</label>
+                <input type="time" id="walk-time-morning" required>
+              </div>
+              <!-- Countdowns -->
+              <div class="countdown-timer" id="countdown-walk-morning">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span class="countdown-text">Đang cập nhật...</span>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 16px;">
+              <div class="input-group">
+                <label for="walk-time-afternoon">Thời điểm nhắc Buổi chiều</label>
+                <input type="time" id="walk-time-afternoon" required>
+              </div>
+              <!-- Countdowns -->
+              <div class="countdown-timer" id="countdown-walk-afternoon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span class="countdown-text">Đang cập nhật...</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn-secondary" onclick="triggerTest('walk')">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 0 1-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+              </svg>
+              Gửi thử thông báo Windows
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SYSTEM CARD -->
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="card-header" style="margin-bottom: 16px;">
+          <div class="card-title-area">
+            <div class="card-icon-wrapper" style="background: rgba(148, 163, 184, 0.08); color: var(--text-secondary);">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              </svg>
+            </div>
+            <div class="card-title-text">
+              <h3>⚙️ Hệ thống</h3>
+              <p>Cấu hình cài đặt sâu và tuỳ chọn chạy ngầm Windows</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="system-grid">
+          <div class="system-option">
+            <div class="system-option-text">
+              <label for="startup-enabled">Khởi động cùng Windows</label>
+              <p>Tự động chạy ngầm khi mở máy tính</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="startup-enabled">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="system-option">
+            <div class="system-option-text">
+              <label>Đóng ứng dụng</label>
+              <p>Tắt hoàn toàn máy chủ cục bộ và khay hệ thống</p>
+            </div>
+            <button type="button" class="btn-secondary" style="border-color: rgba(244,63,94,0.2); color: var(--error);" onclick="shutdownApp()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Thoát HealthSync
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SYSTEM COLLAPSIBLE TERMINAL LOG PANEL -->
+      <section class="console-panel">
+        <div class="console-header" onclick="toggleConsole()">
+          <h3>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Nhật ký Hoạt động Engine (Live Logs)
+          </h3>
+          <div class="console-status">
+            <span class="console-dot"></span>
+            <span class="console-dot"></span>
+            <span class="console-dot"></span>
+          </div>
+        </div>
+        <div class="console-content" id="console-content">
+          <!-- Live logs loaded here dynamically -->
+        </div>
+      </section>
+
+      <!-- FLOATING ACTION BAR -->
+      <div class="action-bar">
+        <span class="action-info-text">Các thay đổi về giờ nhắc sẽ được áp dụng ngay lập tức</span>
+        <button type="submit" class="btn-primary" id="btn-save">
+          <span class="spinner"></span>
+          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+          </svg>
+          <span class="btn-text">Áp dụng thay đổi</span>
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <!-- TOASTS -->
+  <div id="toast-container"></div>
+
+  <!-- SCRIPTS -->
+  <script>
+    let globalStats = {
+      medicine_taken: false,
+      water_count: 0,
+      walk_morning_completed: false,
+      walk_afternoon_completed: false,
+      walk_completed: false
+    };
+
+    // Add Live Log function
+    function addLog(text, tag = 'SYSTEM') {
+      const consoleContent = document.getElementById('console-content');
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      
+      let tagClass = 'log-tag-system';
+      if (tag === 'ACTION') tagClass = 'log-tag-action';
+      if (tag === 'ALERT') tagClass = 'log-tag-alert';
+      if (tag === 'CONFIG') tagClass = 'log-tag-config';
+      
+      line.innerHTML = `
+        <span class="log-time">[${timeStr}]</span>
+        <span class="${tagClass}">[${tag}]</span>
+        <span class="log-text">${text}</span>
+      `;
+      
+      consoleContent.appendChild(line);
+      consoleContent.scrollTop = consoleContent.scrollHeight;
+    }
+
+    // Toggle Console Collapsing
+    let consoleOpen = true;
+    function toggleConsole() {
+      const content = document.getElementById('console-content');
+      consoleOpen = !consoleOpen;
+      content.style.display = consoleOpen ? 'flex' : 'none';
+    }
+
+    // Toggle card visual styling based on checkbox state
+    function toggleCardState(service) {
+      const card = document.getElementById(`card-${service}`);
+      const checkbox = document.getElementById(`${service}-enabled`);
+      if (checkbox.checked) {
+        card.classList.remove('disabled-state');
+      } else {
+        card.classList.add('disabled-state');
+      }
+    }
+
+    function updateUIStates() {
+      ['medicine', 'water', 'walk'].forEach(toggleCardState);
+    }
+
+    // Dynamic Clean Toast alert notifications
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icon = document.createElement('span');
+      icon.className = 'toast-icon';
+      if (type === 'success') {
+        icon.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`;
+      } else {
+        icon.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>`;
+      }
+      
+      const text = document.createElement('span');
+      text.innerText = message;
+      
+      toast.appendChild(icon);
+      toast.appendChild(text);
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.add('toast-out');
+        toast.addEventListener('animationend', () => {
+          toast.remove();
+        });
+      }, 3500);
+    }
+
+    // ── DYNAMIC COUNTDOWNS ──────────────────────────────────────────────────
+    function updateCountdowns() {
+      const now = new Date();
+      
+      // Countdown Medicine
+      if (document.getElementById('medicine-enabled').checked) {
+        const timeInput = document.getElementById('medicine-time').value;
+        document.getElementById('countdown-medicine').style.display = 'inline-flex';
+        document.getElementById('countdown-medicine').querySelector('.countdown-text').innerText = getCountdownString(timeInput);
+      } else {
+        document.getElementById('countdown-medicine').style.display = 'none';
+      }
+
+      // Countdown Walk
+      if (document.getElementById('walk-enabled').checked) {
+        const timeMorning = document.getElementById('walk-time-morning').value;
+        const timeAfternoon = document.getElementById('walk-time-afternoon').value;
+        document.getElementById('countdown-walk-morning').style.display = 'inline-flex';
+        document.getElementById('countdown-walk-morning').querySelector('.countdown-text').innerText = getCountdownString(timeMorning);
+        document.getElementById('countdown-walk-afternoon').style.display = 'inline-flex';
+        document.getElementById('countdown-walk-afternoon').querySelector('.countdown-text').innerText = getCountdownString(timeAfternoon);
+      } else {
+        document.getElementById('countdown-walk-morning').style.display = 'none';
+        document.getElementById('countdown-walk-afternoon').style.display = 'none';
+      }
+
+      // Countdown Water
+      if (document.getElementById('water-enabled').checked) {
+        const startTimeInput = document.getElementById('water-time').value;
+        const intervalHours = parseInt(document.getElementById('water-interval').value) || 2;
+        document.getElementById('countdown-water').style.display = 'inline-flex';
+        document.getElementById('countdown-water').querySelector('.countdown-text').innerText = getWaterCountdownString(startTimeInput, intervalHours);
+      } else {
+        document.getElementById('countdown-water').style.display = 'none';
+      }
+    }
+
+    function getCountdownString(timeStr) {
+      if (!timeStr) return "Chưa đặt giờ";
+      const now = new Date();
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      
+      let target = new Date();
+      target.setHours(hours, minutes, 0, 0);
+      
+      if (target <= now) {
+        target.setDate(target.getDate() + 1); // Tiếp theo vào ngày mai
+      }
+      
+      const diffMs = target - now;
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffMins = Math.floor((diffMs % 3600000) / 60000);
+      const diffSecs = Math.floor((diffMs % 60000) / 1000);
+      
+      return `Nhắc nhở tiếp theo trong: ${String(diffHours).padStart(2, '0')}h ${String(diffMins).padStart(2, '0')}m ${String(diffSecs).padStart(2, '0')}s`;
+    }
+
+    function getWaterCountdownString(startTimeStr, intervalHours) {
+      if (!startTimeStr) return "Chưa đặt giờ";
+      const now = new Date();
+      const [startH, startM] = startTimeStr.split(':').map(Number);
+      
+      let startToday = new Date();
+      startToday.setHours(startH, startM, 0, 0);
+      
+      let nextWater = new Date(startToday);
+      while (nextWater <= now) {
+        nextWater.setTime(nextWater.getTime() + (intervalHours * 60 * 60 * 1000));
+      }
+      
+      const diffMs = nextWater - now;
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffMins = Math.floor((diffMs % 3600000) / 60000);
+      const diffSecs = Math.floor((diffMs % 60000) / 1000);
+      
+      return `Bổ sung nước tiếp theo trong: ${String(diffHours).padStart(2, '0')}h ${String(diffMins).padStart(2, '0')}m ${String(diffSecs).padStart(2, '0')}s`;
+    }
+
+    setInterval(updateCountdowns, 1000);
+
+    // ── BENTO DYNAMIC INTERACTIVE STATS PERSISTENCE ────────────────────────
+    function updateBentoStats(key, value) {
+      globalStats[key] = value;
+      
+      // Medicine capsule split animation
+      if (key === 'medicine_taken') {
+        const textEl = document.getElementById('bento-med-text');
+        const capsule = document.getElementById('bento-capsule');
+        textEl.innerText = value ? 'Đã uống 💊' : 'Chưa uống';
+        textEl.style.color = value ? 'var(--success)' : 'var(--text-primary)';
+        
+        if (value) {
+          capsule.classList.add('taken');
+        } else {
+          capsule.classList.remove('taken');
+        }
+        addLog(`Người dùng đánh dấu: ${value ? 'ĐÃ UỐNG THUỐC 💊' : 'CHƯA UỐNG THUỐC 💊'}`, 'ACTION');
+      }
+
+      calculateProgress();
+      persistStats();
+    }
+
+    function updateBentoWalkStats(key, value) {
+      globalStats[key] = value;
+      
+      // Tính toán walk_completed chỉ khi cả 2 buổi đều được tick
+      globalStats.walk_completed = globalStats.walk_morning_completed && globalStats.walk_afternoon_completed;
+      
+      const walkCard = document.getElementById('bento-walk-card');
+      const morningChecked = globalStats.walk_morning_completed;
+      const afternoonChecked = globalStats.walk_afternoon_completed;
+      
+      // Đổi màu text checkbox
+      document.getElementById('bento-walk-morning-text').style.color = morningChecked ? 'var(--success)' : 'var(--text-primary)';
+      document.getElementById('bento-walk-afternoon-text').style.color = afternoonChecked ? 'var(--success)' : 'var(--text-primary)';
+      
+      const summaryText = document.getElementById('bento-walk-summary-text');
+      if (globalStats.walk_completed) {
+        walkCard.classList.add('completed-walk');
+        summaryText.innerText = 'Đã hoàn thành cả 2 buổi! 🎉';
+        summaryText.style.color = 'var(--success)';
+        addLog('Đã hoàn thành cả 2 buổi đi bộ (Sáng và Chiều)! 🚶', 'ACTION');
+      } else {
+        walkCard.classList.remove('completed-walk');
+        summaryText.style.color = 'var(--text-secondary)';
+        if (morningChecked && !afternoonChecked) {
+          summaryText.innerText = 'Đã đi buổi sáng, còn buổi chiều';
+          addLog('Đã hoàn thành đi bộ buổi sáng, còn buổi chiều. 🚶', 'ACTION');
+        } else if (!morningChecked && afternoonChecked) {
+          summaryText.innerText = 'Đã đi buổi chiều, còn buổi sáng';
+          addLog('Đã hoàn thành đi bộ buổi chiều, còn buổi sáng. 🚶', 'ACTION');
+        } else {
+          summaryText.innerText = 'Chưa hoàn thành';
+          addLog('Hủy đánh dấu đi bộ. 🚶', 'ACTION');
+        }
+      }
+      
+      calculateProgress();
+      persistStats();
+    }
+
+    function adjustWater(amount) {
+      let count = globalStats.water_count + amount;
+      if (count < 0) count = 0;
+      if (count > 8) count = 8;
+      
+      globalStats.water_count = count;
+      document.getElementById('water-count-text').innerText = count;
+      
+      const percent = (count / 8) * 100;
+      document.getElementById('water-wave-fill').style.height = `${percent}%`;
+
+      if (amount > 0) {
+        addLog(`Người dùng vừa uống thêm 1 ly nước! 💧 (+1) Tổng cộng: ${count}/8 ly`, 'ACTION');
+      } else if (amount < 0) {
+        addLog(`Điều chỉnh giảm: -1 ly nước. Tổng cộng: ${count}/8 ly`, 'ACTION');
+      }
+
+      calculateProgress();
+      persistStats();
+    }
+
+    function calculateProgress() {
+      let activeCount = 0;
+      const medicineActive = document.getElementById('medicine-enabled').checked;
+      const walkActive = document.getElementById('walk-enabled').checked;
+      const waterActive = document.getElementById('water-enabled').checked;
+
+      if (medicineActive) activeCount++;
+      if (walkActive) activeCount++;
+      if (waterActive) activeCount++;
+
+      if (activeCount === 0) {
+        document.getElementById('progress-percent').innerText = '100%';
+        document.getElementById('progress-bar-fill').style.width = '100%';
+        const fillEl = document.getElementById('progress-bar-fill');
+        fillEl.style.background = 'linear-gradient(90deg, var(--accent) 0%, var(--success) 100%)';
+        fillEl.style.boxShadow = '0 0 15px var(--success)';
+        return;
+      }
+
+      const singleWeight = 100 / activeCount;
+      let totalScore = 0;
+
+      if (medicineActive && globalStats.medicine_taken) {
+        totalScore += singleWeight;
+      }
+
+      if (walkActive && globalStats.walk_completed) {
+        totalScore += singleWeight;
+      }
+
+      if (waterActive) {
+        // Water is dynamically proportional to the number of cups
+        const waterRatio = (globalStats.water_count || 0) / 8;
+        totalScore += waterRatio * singleWeight;
+      }
+
+      const score = Math.min(100, Math.round(totalScore));
+      document.getElementById('progress-percent').innerText = `${score}%`;
+      document.getElementById('progress-bar-fill').style.width = `${score}%`;
+      
+      const fillEl = document.getElementById('progress-bar-fill');
+      if (score === 100) {
+        fillEl.style.background = 'linear-gradient(90deg, var(--accent) 0%, var(--success) 100%)';
+        fillEl.style.boxShadow = '0 0 15px var(--success)';
+      } else {
+        fillEl.style.background = 'linear-gradient(90deg, var(--accent) 0%, var(--info) 100%)';
+        fillEl.style.boxShadow = '0 0 10px rgba(99, 102, 241, 0.4)';
+      }
+    }
+
+    async function persistStats() {
+      try {
+        await fetch('/api/stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(globalStats)
+        });
+      } catch (err) {
+        console.error('Error saving daily stats:', err);
+      }
+    }
+
+    // ── DATA SYNC / LOAD ────────────────────────────────────────────────────
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/config');
+        if (!res.ok) throw new Error('Cổng máy chủ đang bận hoặc server đã bị tắt.');
+        const cfg = await res.json();
+        
+        // 1. Load active states
+        document.getElementById('medicine-enabled').checked = cfg.medicine.enabled;
+        document.getElementById('water-enabled').checked = cfg.water.enabled;
+        document.getElementById('walk-enabled').checked = cfg.walk.enabled;
+        
+        // 2. Load configured times
+        document.getElementById('medicine-time').value = cfg.medicine.time;
+        document.getElementById('water-time').value = cfg.water.time;
+        document.getElementById('water-interval').value = cfg.water.interval_hours;
+        document.getElementById('walk-time-morning').value = cfg.walk.time_morning || "08:30";
+        document.getElementById('walk-time-afternoon').value = cfg.walk.time_afternoon || "17:30";
+        
+        // 3. Load System settings
+        document.getElementById('startup-enabled').checked = cfg.startup || false;
+        
+        // 4. Load & Update Bento stats
+        if (cfg.stats) {
+          globalStats = cfg.stats;
+          
+          const medChecked = globalStats.medicine_taken || false;
+          document.getElementById('bento-med-checkbox').checked = medChecked;
+          document.getElementById('bento-med-text').innerText = medChecked ? 'Đã uống 💊' : 'Chưa uống';
+          document.getElementById('bento-med-text').style.color = medChecked ? 'var(--success)' : 'var(--text-primary)';
+          if (medChecked) {
+            document.getElementById('bento-capsule').classList.add('taken');
+          }
+          
+          const morningWalk = globalStats.walk_morning_completed || false;
+          const afternoonWalk = globalStats.walk_afternoon_completed || false;
+          
+          document.getElementById('bento-walk-morning-checkbox').checked = morningWalk;
+          document.getElementById('bento-walk-afternoon-checkbox').checked = afternoonWalk;
+          
+          document.getElementById('bento-walk-morning-text').style.color = morningWalk ? 'var(--success)' : 'var(--text-primary)';
+          document.getElementById('bento-walk-afternoon-text').style.color = afternoonWalk ? 'var(--success)' : 'var(--text-primary)';
+          
+          const walkCard = document.getElementById('bento-walk-card');
+          const summaryText = document.getElementById('bento-walk-summary-text');
+          
+          globalStats.walk_completed = morningWalk && afternoonWalk;
+          if (globalStats.walk_completed) {
+            walkCard.classList.add('completed-walk');
+            summaryText.innerText = 'Đã hoàn thành cả 2 buổi! 🎉';
+            summaryText.style.color = 'var(--success)';
+          } else {
+            walkCard.classList.remove('completed-walk');
+            summaryText.style.color = 'var(--text-secondary)';
+            if (morningWalk && !afternoonWalk) {
+              summaryText.innerText = 'Đã đi buổi sáng, còn buổi chiều';
+            } else if (!morningWalk && afternoonWalk) {
+              summaryText.innerText = 'Đã đi buổi chiều, còn buổi sáng';
+            } else {
+              summaryText.innerText = 'Chưa hoàn thành';
+            }
+          }
+          
+          const waterCount = globalStats.water_count || 0;
+          document.getElementById('water-count-text').innerText = waterCount;
+          document.getElementById('water-wave-fill').style.height = `${(waterCount / 8) * 100}%`;
+        }
+
+        updateUIStates();
+        calculateProgress();
+        updateCountdowns();
+
+        // Initial system logs
+        document.getElementById('console-content').innerHTML = ''; // Reset
+        addLog('Hệ thống HealthSync Core đã khởi chạy thành công!', 'SYSTEM');
+        addLog(`Nạp tệp cấu hình từ registry Windows và file config.json thành công.`, 'CONFIG');
+        addLog(`Trạng thái nhắc nhở hôm nay: Uống thuốc (${cfg.medicine.enabled ? 'Bật' : 'Tắt'}), Bổ sung nước (${cfg.water.enabled ? 'Bật' : 'Tắt'}), Đi bộ (${cfg.walk.enabled ? 'Bật' : 'Tắt'})`, 'CONFIG');
+        addLog(`Lượng nước hiện tại: ${globalStats.water_count}/8 ly.`, 'CONFIG');
+
+      } catch (err) {
+        showToast(err.message, 'error');
+        addLog(`LỖI ENGINE: ${err.message}`, 'ALERT');
+      }
+    }
+
+    // ── SAVE SETTINGS FORM ──────────────────────────────────────────────────
+    async function saveConfig(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-save');
+      btn.classList.add('loading');
+      
+      const payload = {
+        medicine: {
+          enabled: document.getElementById('medicine-enabled').checked,
+          time: document.getElementById('medicine-time').value
+        },
+        water: {
+          enabled: document.getElementById('water-enabled').checked,
+          time: document.getElementById('water-time').value,
+          interval_hours: parseInt(document.getElementById('water-interval').value) || 2
+        },
+        walk: {
+          enabled: document.getElementById('walk-enabled').checked,
+          time_morning: document.getElementById('walk-time-morning').value,
+          time_afternoon: document.getElementById('walk-time-afternoon').value
+        },
+        startup: document.getElementById('startup-enabled').checked,
+        stats: globalStats
+      };
+
+      try {
+        const res = await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          showToast('Đã lưu cấu hình và thiết lập lịch nhắc nhở thành công!');
+          addLog('Đã áp dụng cài đặt nhắc nhở mới và đồng bộ cơ sở dữ liệu.', 'CONFIG');
+          addLog(`Khởi động cùng Windows: ${payload.startup ? 'ĐÃ BẬT' : 'ĐÃ TẮT'}`, 'CONFIG');
+          calculateProgress();
+          updateUIStates();
+        } else {
+          const data = await res.json();
+          throw new Error(data.error || 'Unknown error');
+        }
+      } catch (err) {
+        showToast(`Lỗi khi lưu cài đặt: ${err.message}`, 'error');
+        addLog(`LỖI LƯU CÀI ĐẶT: ${err.message}`, 'ALERT');
+      } finally {
+        setTimeout(() => {
+          btn.classList.remove('loading');
+        }, 600);
+      }
+    }
+
+    // ── TRIGGER TEST NOTIFICATION ──────────────────────────────
+    async function triggerTest(service) {
+      try {
+        const res = await fetch('/api/test-notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: service })
+        });
+        
+        if (res.ok) {
+          showToast('Yêu cầu gửi thông báo thành công!');
+          addLog(`Kích hoạt test thông báo cho hoạt động: [${service.toUpperCase()}]`, 'ACTION');
+        } else {
+          throw new Error();
+        }
+      } catch (err) {
+        showToast('Không gửi được thông báo thử.', 'error');
+        addLog('LỖI: Yêu cầu gửi thử thông báo thất bại.', 'ALERT');
+      }
+    }
+
+    // Quit application entirely
+    async function shutdownApp() {
+      if (confirm('Bạn có chắc chắn muốn thoát HealthSync hoàn toàn? Lịch nhắc nhở sẽ ngưng chạy ngầm.')) {
+        try {
+          showToast('Đang tắt ứng dụng...', 'error');
+          await fetch('/api/quit', { method: 'POST' });
+        } catch (err) {
+          // App might shutdown
+        }
+        setTimeout(() => {
+          document.body.innerHTML = `
+            <div style="text-align:center; padding-top:100px; font-family:var(--font-title); padding-inline: 20px;">
+              <h1 style="color:var(--error); margin-bottom:10px; font-size:32px;">HealthSync Đã Tắt Hoàn Toàn</h1>
+              <p style="color:var(--text-secondary); font-size: 16px;">Toàn bộ server cục bộ và icon khay hệ thống đã dừng. Bạn có thể đóng tab trình duyệt này.</p>
+            </div>
+          `;
+        }, 500);
+      }
+    }
+
+    // Initial Loading
+    window.addEventListener('DOMContentLoaded', loadConfig);
+  </script>
+</body>
+</html>
